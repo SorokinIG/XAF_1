@@ -8,7 +8,7 @@
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup>	 
     <None Remove="Model.DesignedDiffs.xafml" />
   </ItemGroup>
   <ItemGroup>
@@ -27,5 +27,8 @@
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="22.2.4" />
     <PackageReference Include="DevExpress.Persistent.Base" Version="22.2.4" />
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="22.2.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Security.Extensions\Security.Extensions.csproj" />
   </ItemGroup>
 </Project>

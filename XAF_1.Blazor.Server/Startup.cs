@@ -7,6 +7,19 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 using DevExpress.ExpressApp.Xpo;
 using XAF_1.Blazor.Server.Services;
 using DevExpress.ExpressApp.Core;
+using DevExpress.ExpressApp.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using DevExpress.Persistent.BaseImpl.PermissionPolicy;
+using XAF_1.Module.BusinessObjects;
 
 namespace XAF_1.Blazor.Server;
 
@@ -60,6 +73,30 @@ public class Startup {
                 })
                 .AddNonPersistent();
         });
+        services.AddXafSecurity(options => {
+            options.RoleType = typeof(PermissionPolicyRole);
+            // ApplicationUser descends from PermissionPolicyUser and supports OAuth authentication. For more information, refer to the following help topic: https://docs.devexpress.com/eXpressAppFramework/402197
+            // If your application uses PermissionPolicyUser or a custom user type, set the UserType property as follows:
+            options.UserType = typeof(XAF_1.Module.BusinessObjects.ApplicationUser);
+
+            // ApplicationUserLoginInfo is only necessary for applications that use the ApplicationUser user type.
+            // Comment out the following line if using PermissionPolicyUser or a custom user type.
+            options.UserLoginInfoType = typeof(XAF_1.Module.BusinessObjects.ApplicationUserLoginInfo);
+            options.Events.OnSecurityStrategyCreated = securityStrategy => {
+                ((SecurityStrategy)securityStrategy).RegisterXPOAdapterProviders();
+                ((SecurityStrategy)securityStrategy).AnonymousAllowedTypes.Add(typeof(ApplicationUser));
+                ((SecurityStrategy)securityStrategy).AnonymousAllowedTypes.Add(typeof(PermissionPolicyRole));
+                ((SecurityStrategy)securityStrategy).AnonymousAllowedTypes.Add(typeof(ApplicationUserLoginInfo));
+
+            };
+            options.SupportNavigationPermissionsForTypes = false;
+        }).AddExternalAuthentication<HttpContextPrincipalProvider>()
+           .AddAuthenticationStandard(options => {
+               options.IsSupportChangePassword = true;
+           });
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => {
+            options.LoginPath = "/LoginPage";
+        });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +113,7 @@ public class Startup {
         app.UseRequestLocalization();
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseAuthentication();
         app.UseXaf();
         app.UseEndpoints(endpoints => {
             endpoints.MapXafEndpoints();

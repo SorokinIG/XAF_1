@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XAF_1.Win", "XAF_1.Win\XAF_
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XAF_1.Blazor.Server", "XAF_1.Blazor.Server\XAF_1.Blazor.Server.csproj", "{0044486F-8A3C-4B81-82C4-47E4BFB6D76D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Security.Extensions", "..\Security.Extensions\Security.Extensions.csproj", "{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,8 +36,17 @@ Global
 		{0044486F-8A3C-4B81-82C4-47E4BFB6D76D}.EasyTest|Any CPU.Build.0 = EasyTest|Any CPU
 		{0044486F-8A3C-4B81-82C4-47E4BFB6D76D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0044486F-8A3C-4B81-82C4-47E4BFB6D76D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}.EasyTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}.EasyTest|Any CPU.Build.0 = Debug|Any CPU
+		{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B9F2B64-B7C6-4CE7-ACD5-5364BF41E826}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14DF4716-334B-4CD1-9FE5-16E8FB654AA4}
 	EndGlobalSection
 EndGlobal
