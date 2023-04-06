@@ -7,8 +7,12 @@ using DevExpress.ExpressApp.Model.NodeGenerators;
 using DevExpress.ExpressApp.SystemModule;
 using DevExpress.ExpressApp.Templates;
 using DevExpress.ExpressApp.Utils;
+using DevExpress.ExpressApp.Xpo;
+using DevExpress.Persistent.AuditTrail;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Validation;
+using DevExpress.ExpressApp.Security.ClientServer;
+using DevExpress.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +40,7 @@ namespace XAF_1.Module.Controllers
 
             PopupWindowShowAction showNotesAction = new PopupWindowShowAction(this, "ShowNotesAction", PredefinedCategory.Edit)
             {
-                Caption = "Show Notes"
+                Caption = "Объеденить площадки"
             };
 
             showNotesAction.CustomizePopupWindowParams += ShowNotesAction_CustomizePopupWindowParams;
@@ -48,25 +52,8 @@ namespace XAF_1.Module.Controllers
             base.OnActivated();
             // Perform various tasks depending on the target View.
             
-        }
+        }      
 
-      
-
-        private void CustomizeList(ICollection<Type> types)
-        {
-            List<Type> unusableTypes = new List<Type>();
-            foreach (Type item in types)
-            {
-                if (item == typeof(Task))
-                {
-                    unusableTypes.Add(item);
-                }
-            }
-            foreach (Type item in unusableTypes)
-            {
-                types.Remove(item);
-            }
-        }
         protected override void OnViewControlsCreated()
         {
             base.OnViewControlsCreated();
@@ -89,29 +76,49 @@ namespace XAF_1.Module.Controllers
         private void ShowNotesAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
             Area task = (Area)View.CurrentObject;
+            List<int> tempArr = new List<int>();
             foreach (WeightArea note in e.PopupWindowViewSelectedObjects)
-            {
-                
-
-               if(note.IsActive && searchContainsAreaNumber(task.AreaNumbers, note.Number.ToString()))
+            {                
+               if(searchContainsAreaNumber(task.AreaNumbers, note.Number))
                 {
-                    task.AreaNumbers += "," + note.Number.ToString();
+                    tempArr.Add(note.Number);                    
                     task.AreaWeight += note.Weight;
-                }
-                
+                }                
             }
-            View.ObjectSpace.CommitChanges();
-        }
-        bool searchContainsAreaNumber(string area, string numberPicket)
-        {
-            string[] numbers = area.Split(new char[] { ',' });
+            tempArr.Sort();
+            
+            task.AreaNumbers = tempArr.First().ToString() + " - " + tempArr.Last().ToString();
 
-            foreach (string s in numbers)
+            AuditTrailService.GetService(Application.ServiceProvider).BeginSessionAudit(((XPObjectSpace)View.ObjectSpace).Session, AuditTrailStrategy.OnObjectChanged);
+            View.ObjectSpace.Committed += new EventHandler(ObjectSpace_Committed);
+            View.ObjectSpace.Reloaded += new EventHandler(ObjectSpace_Reloaded);
+
+            View.ObjectSpace.CommitChanges();
+         
+        }
+        bool searchContainsAreaNumber(string area, int numberPicket)
+        {
+            if (area == null)
+                return true;
+            string[] numbers = area.Split(new char[] { '-' });
+            int a = Int32.Parse(numbers.First());
+            int b = Int32.Parse(numbers.Last());            
+            for (int i = 0; i <= b-a; i++)
             {
-                if(s.Contains(numberPicket))
+                if (numberPicket == a + i)
                     return false;
-            }
+            }       
             return true;
+        }
+        private void ObjectSpace_Reloaded(object sender, EventArgs e)
+        {
+            AuditTrailService.GetService(Application.ServiceProvider).EndSessionAudit(((XPObjectSpace)sender).Session);
+            AuditTrailService.GetService(Application.ServiceProvider).BeginSessionAudit(((XPObjectSpace)sender).Session, AuditTrailStrategy.OnObjectChanged);
+        }
+        private void ObjectSpace_Committed(object sender, EventArgs e)
+        {
+            AuditTrailService.GetService(Application.ServiceProvider).SaveAuditData(((XPObjectSpace)sender).Session);
+            AuditTrailService.GetService(Application.ServiceProvider).BeginSessionAudit(((XPObjectSpace)sender).Session, AuditTrailStrategy.OnObjectChanged);
         }
     }
 }

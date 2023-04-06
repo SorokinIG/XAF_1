@@ -28,11 +28,11 @@ namespace XAF_1.Module.BusinessObjects
         {
             base.AfterConstruction();
             // Place your initialization code here (https://documentation.devexpress.com/eXpressAppFramework/CustomDocument112834.aspx).
+            //создать базовую площадку
+                         
         }
-
-        int weight;
+        
         int number;
-
         /// <summary>
         /// Номер пикета
         /// </summary>    
@@ -43,28 +43,35 @@ namespace XAF_1.Module.BusinessObjects
             get => number;
             set => SetPropertyValue(nameof(Number), ref number, value);
         }
-
-
-        
-        
+        int weight;
         public int Weight
         {
             get => weight;
             set => SetPropertyValue(nameof(Weight), ref weight, value);
         }
 
-        bool _isActive = false;
-        public bool IsActive
+        Storage storage;
+        /// <summary>
+        /// название склада
+        /// </summary>
+        [Association("Storage-WeightAreas")]
+        public Storage Storage
         {
-            get
-            {
-                return _isActive;
-            }
-            set
-            {
-                SetPropertyValue(nameof(IsActive), ref _isActive, value);
-            }
+            get => storage;
+            set => SetPropertyValue(nameof(Storage), ref storage, value);
         }
+
+        Area area;
+        /// <summary>
+        /// площадка
+        /// </summary>
+        [Association("Area-NumberAreas")]
+        public Area Area
+        {
+            get => area;
+            set => SetPropertyValue(nameof(Area), ref area, value);
+        }
+
 
 
     }

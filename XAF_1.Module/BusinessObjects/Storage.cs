@@ -1,4 +1,6 @@
 ﻿using DevExpress.Data.Filtering;
+using DevExpress.ExpressApp.Model;
+using DevExpress.ExpressApp;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
@@ -29,7 +31,7 @@ namespace XAF_1.Module.BusinessObjects
             // Place your initialization code here (https://documentation.devexpress.com/eXpressAppFramework/CustomDocument112834.aspx).
         }
 
-        string numberSegment;
+   
         string numberStorage;
 
 
@@ -38,96 +40,43 @@ namespace XAF_1.Module.BusinessObjects
         /// <summary>
         /// Номер склада
         /// </summary>
-        [RuleUniqueValue("", DefaultContexts.Save,
-        CriteriaEvaluationBehavior = CriteriaEvaluationBehavior.BeforeTransaction)] //поле уникальное
+       
         public string NumberStorage
         {
             get => numberStorage;
             set => SetPropertyValue(nameof(NumberStorage), ref numberStorage, value);
-        }
-
+        }        
 
         /// <summary>
-        /// номер площадки
+        /// История изменений
         /// </summary>
-        private string fAreaNumbers = null;
-        public string AreaNumbers
+        private XPCollection<AuditDataItemPersistent> auditTrail;
+        [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+        public XPCollection<AuditDataItemPersistent> AuditTrail
         {
             get
             {
-                if (!IsLoading && !IsSaving && fAreaNumbers == null)
-                    UpdateArea(false);
-                return fAreaNumbers;
+                if (auditTrail == null)
+                {
+                    auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+                }
+                return auditTrail;
             }
-        }
+        }       
 
-
-
-        /// <summary>
-        /// вес площадки
-        /// </summary>
-        private int? fAreaWeight = null;
-        public int? AreaWeight
-        {
-            get
-            {
-                if (!IsLoading && !IsSaving && fAreaWeight == null)
-                    UpdateAreaWeight(false);
-                return fAreaWeight;
-            }
-        }
-
-
-        /// <summary>
-        /// вернуть колекцию 
-        /// </summary>
-
-        [Association("Storage-Areas"), Aggregated]
+        [Association("Storage-Areas")]
         public XPCollection<Area> Areas
         {
             get { return GetCollection<Area>("Areas"); }
         }
 
-
-        /// <summary>
-        /// Обновление площадки
-        /// </summary>
-        /// <param name="forceChangeEvents"></param>
-        public void UpdateArea(bool forceChangeEvents)
+        [Association("Storage-WeightAreas")]
+        public XPCollection<WeightArea> WeightAreas
         {
-            string? oldTotal = fAreaNumbers;
-            string tempTotal = "";
-            foreach (Area detail in Areas)
-                tempTotal += detail.AreaNumbers;
-            fAreaNumbers = tempTotal;
-            if (forceChangeEvents)
-                OnChanged("AreaNumbers", oldTotal, fAreaNumbers);
-        }
-
-        /// <summary>
-        /// Обновление всего веса
-        /// </summary>
-        /// <param name="forceChangeEvents"></param>
-        public void UpdateAreaWeight(bool forceChangeEvents)
-        {
-            int? oldTotal = fAreaWeight;
-            int tempTotal = 0;
-            foreach (Area detail in Areas)
-                tempTotal += detail.AreaWeight;
-            fAreaWeight = tempTotal;
-            if (forceChangeEvents)
-                OnChanged("AreaWeight", oldTotal, fAreaWeight);
-        }
-               
-        protected override void OnLoaded()
-        {
-            Reset();
-            base.OnLoaded();
-        }
-        private void Reset()
-        {            
-            fAreaWeight = null;            
-        }
-        
+            get
+            {
+                return GetCollection<WeightArea>(nameof(WeightAreas));
+            }
+        }               
     }
 }
